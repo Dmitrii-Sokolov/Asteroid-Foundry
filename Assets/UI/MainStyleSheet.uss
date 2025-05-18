@@ -1,0 +1,41 @@
+.Button {
+    margin-bottom: 8px;
+    border-left-color: rgb(38, 255, 0);
+    border-right-color: rgb(38, 255, 0);
+    border-top-color: rgb(38, 255, 0);
+    border-bottom-color: rgb(38, 255, 0);
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
+    background-color: rgba(0, 112, 255, 0);
+    margin-top: 8px;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+    margin-right: 0;
+    margin-left: 0;
+    transition-duration: 0.1s;
+    transition-timing-function: ease-in-out;
+}
+
+.Button:hover {
+    background-color: rgba(0, 111, 255, 0.05);
+}
+
+.Button:active {
+    background-color: rgba(0, 28, 255, 0.5);
+}
+
+.Progress {
+    scale: 0 1;
+    transform-origin: left;
+    transition-duration: 0s;
+}
+
+.Progress-Done {
+    scale: 1 1;
+    transform-origin: left;
+    transition-duration: 1s;
+}
