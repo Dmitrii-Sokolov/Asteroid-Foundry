@@ -1,134 +1,123 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with this repository.
+
+## Quick Reference
+
+| Task | Location |
+|------|----------|
+| Game design details | `.claude/GAME_DESIGN.md` |
+| Technical architecture | `.claude/ARCHITECTURE.md` |
+| Create ScriptableObject | `Assets/Data/` + see patterns below |
+| Add drone module | `Assets/Scripts/Drone/Modules/` |
+| Add AI behavior | `Assets/Scripts/Drone/Behaviors/` |
+| Physics work | `Assets/Scripts/Physics/` |
+| Inter-system events | `EventBus` in `Assets/Scripts/Core/` |
+| UI components | `Assets/Scripts/UI/` |
+
+---
 
 ## Project Overview
 
-**Asteroid Foundry** is a 2D space automation simulator where players design modular drones for resource mining, factory construction, and creating new drones. The game combines realistic space physics (inertia, momentum, orbital mechanics) with accessible automation through pre-configured drone behaviors.
+**Asteroid Foundry** - 2D space automation simulator with modular drones, realistic space physics (inertia, gravity), and accessible AI behaviors.
 
-**Genre:** Space Automation Puzzle / Sandbox Strategy
-**Target Platform:** WebGL (PC Browser)
-**Unity Version:** 6000.1.3f1 (Unity 6)
-**Render Pipeline:** Universal Render Pipeline (URP) 2D
+| Property | Value |
+|----------|-------|
+| Genre | Space Automation / Sandbox Strategy |
+| Platform | WebGL (PC Browser) |
+| Unity | 6000.1.3f1 (Unity 6) |
+| Render Pipeline | URP 2D |
+| Input System | New Input System |
+| C# Version | 9.0 |
 
-### Key Features
-- **Space Physics**: Movement with inertia, gravity, no friction - creates unique puzzles
-- **Modular Drones**: Players assemble drones from 15+ module types (cores, thrusters, payloads, etc.)
-- **Accessible AI**: Select from pre-made behaviors (Mining, Hauler, Scout, Builder, etc.) instead of programming
-- **Two Game Modes**:
-  - Mission Mode - 20 puzzle missions introducing mechanics
-  - Sandbox Mode - Infinite procedural asteroid field
-- **Production Chains**: Mine resources → Process → Build modules → Assemble drones → Expand
+---
 
-### Documentation
+## Critical Constraints
 
-**📖 Complete documentation available in:**
-- **`GAME_DESIGN.md`** - Full game design document (~80 pages)
-  - Game mechanics, progression, balancing
-  - All modules, behaviors, resources
-  - Mission structure, UI/UX design
-- **`ARCHITECTURE.md`** - Technical architecture (~70 pages)
-  - System design, code structure
-  - Design patterns, data flow
-  - Performance optimization strategies
-  - Implementation roadmap
+**DO NOT:**
+1. Use Unity Physics2D - only custom `SpaceBody`/`PhysicsManager`
+2. Use `Find()`/`GetComponent()` in `Update()` - cache references
+3. Use Threading APIs - WebGL is single-threaded
+4. Exceed 50MB build size - compress assets
 
-**⚠️ Always consult these documents before making architectural decisions.**
+**ALWAYS:**
+1. Use `EventBus` for cross-system communication
+2. Use `ScriptableObjects` for game data
+3. Use `[SerializeField]` instead of `public` for inspector fields
+4. Prefer `UniTask` over coroutines for async (when added)
 
-## Unity Configuration
+---
 
-- **Unity Version**: 6000.1.3f1 (Unity 6)
-- **Target Platform**: WebGL (primary)
-- **Render Pipeline**: Universal Render Pipeline (URP) 2D
-- **Input System**: New Input System (com.unity.inputsystem)
-- **C# Language Version**: C# 9.0
-- **Target Framework**: .NET Standard 2.1
+## Current Status
 
-## Current Project Status
+**Phase:** 1 - Foundation **COMPLETE**
+**Next:** Phase 2 - Physics System
 
-**Phase:** Pre-Development / Planning
-**Status:** Architecture and design documentation complete, ready to begin implementation
+### Existing Files
 
-**Completed:**
-- ✅ Game design document (GAME_DESIGN.md)
-- ✅ Technical architecture (ARCHITECTURE.md)
-- ✅ Unity project setup (URP 2D, Input System, WebGL)
-
-**Next Steps:** See Implementation Roadmap below
-
-## Project Structure
-
-**Planned structure (from ARCHITECTURE.md):**
 ```
-Assets/
-├── Scripts/
-│   ├── Core/           - GameManager, TimeManager, EventBus, ServiceLocator
-│   ├── Drone/          - Drone entities, modules, behaviors, subsystems
-│   ├── Physics/        - Custom space physics (SpaceBody, Gravity, Collisions)
-│   ├── Resources/      - Resource management, inventory, production
-│   ├── Buildings/      - Structures, placement, production queues
-│   ├── World/          - Procedural generation, asteroids, events
-│   ├── UI/             - All user interfaces (HUD, Designer, etc.)
-│   ├── Mission/        - Mission system, objectives, evaluation
-│   ├── Progression/    - Tech tree, research, unlocks
-│   ├── Input/          - Input handling, camera, selection
-│   ├── SaveSystem/     - Persistence, serialization
-│   └── Utilities/      - Object pooling, extensions, helpers
-│
-├── Data/               - ScriptableObject definitions
-│   ├── Modules/        - Drone module definitions
-│   ├── Behaviors/      - Behavior configurations
-│   ├── Resources/      - Resource types
-│   ├── Recipes/        - Production recipes
-│   ├── Technologies/   - Tech tree nodes
-│   └── Missions/       - Mission definitions
-│
-├── Scenes/             - Unity scenes
-├── Prefabs/            - Game object prefabs
-├── Settings/           - Project settings (existing)
-├── Materials/          - Materials and shaders
-├── Sprites/            - 2D artwork
-└── WebGLTemplates/     - PWA template (existing)
+Assets/Scripts/
+├── Core/
+│   ├── GameManager.cs       ✓ Singleton, lifecycle, state
+│   ├── TimeManager.cs       ✓ Pause, time scale
+│   ├── EventBus.cs          ✓ Pub/sub communication
+│   └── Phase1TestHelper.cs  ✓ Integration testing
+├── Input/
+│   └── CameraController.cs  ✓ WASD movement, zoom
+└── UI/
+    ├── UIManager.cs         ✓ UI coordination
+    └── HUDController.cs     ✓ HUD display
 ```
 
-## Build and Development Commands
+### Phase 2 Tasks (Physics)
 
-### Building the Project
-The project uses GitHub Actions for automated builds. Local builds should be done through Unity Editor:
-- **Build WebGL**: File → Build Settings → WebGL → Build
-- **Build and Run**: File → Build Settings → WebGL → Build And Run
+- [ ] `SpaceBody` component (velocity, position, mass)
+- [ ] `PhysicsManager` (fixed timestep simulation)
+- [ ] `GravityField` component
+- [ ] Basic collision detection (`SpatialHash`)
+- [ ] `TrajectoryPredictor`
+- [ ] Debug visualization
 
-### CI/CD Pipeline
-The project uses GitHub Actions (`.github/workflows/main.yml`) to:
-1. Build WebGL version on pushes to main branch
-2. Deploy to GitHub Pages automatically
-3. Cache Library folder for faster builds
+---
 
-### Opening the Project
-- Open Unity Hub
-- Add project from disk: Select the `Asteroid-Foundry` folder
-- Unity will automatically detect version 6000.1.3f1
+## Key Constants (from GAME_DESIGN.md)
 
-## Key Packages and Dependencies
+### Collision Speeds
+| Speed | Result |
+|-------|--------|
+| < 1 m/s | Bounce, minimal damage |
+| 1-5 m/s | Module damage, cargo loss |
+| > 5 m/s | Destruction |
 
-**Core Unity Packages:**
-- `com.unity.render-pipelines.universal` (17.1.0) - URP rendering
-- `com.unity.inputsystem` (1.14.0) - New Input System
-- `com.unity.2d.animation` (10.2.0) - 2D animation tools
-- `com.unity.2d.sprite` (1.0.0) - 2D sprite support
-- `com.unity.2d.spriteshape` (10.1.0) - Spline-based 2D shapes
-- `com.unity.ugui` (2.0.0) - UI system
-- `com.unity.visualscripting` (1.9.6) - Visual scripting
-- `com.unity.splines` (2.8.1) - Spline tools
+### Energy Zones
+| Zone | Distance | Solar Efficiency |
+|------|----------|------------------|
+| Inner | 0-500u | 100% |
+| Middle | 500-1500u | 50% |
+| Outer | 1500-3000u | 10% |
 
-**Editor Packages:**
-- `com.unity.ide.visualstudio` (2.0.23)
-- `com.unity.ide.rider` (3.0.36)
+### Drone Cores
+| Core | Slots | HP | Mass | Cost |
+|------|-------|-----|------|------|
+| Small | 4 | 50 | 100kg | 10 iron |
+| Medium | 8 | 150 | 250kg | 30 iron, 10 copper |
+| Large | 16 | 400 | 600kg | 50 iron, 30 titanium |
 
-## Core Architecture Principles
+### Thrusters
+| Type | Thrust | Fuel/s | Slots |
+|------|--------|--------|-------|
+| Ion | 10N | 0.1 | 1 |
+| Chemical | 50N | 1.0 | 2 |
+| Plasma | 100N | 0.5 | 3 |
 
-### Architectural Style
-**Layered + Component-Based Architecture**
+### Performance Targets
+- **60 FPS** with 100 drones
+- **30 FPS** with 500 drones (acceptable)
+- **Build size** < 50 MB
+
+---
+
+## Architecture
 
 ```
 UI Layer (Presentation)
@@ -142,284 +131,49 @@ Infrastructure Layer (Events, Pooling, Utils)
 
 ### 8 Core Systems
 
-1. **Game Management** - Lifecycle, state coordination
-2. **Drone System** - Entity-component-system for drones
+1. **Game Management** - GameManager, TimeManager
+2. **Drone System** - Entities, modules, behaviors
 3. **Physics System** - Custom space physics (NOT Unity Physics2D)
 4. **Resource System** - Inventory, production, mining
-5. **Building System** - Structure placement, manufacturing
-6. **World System** - Procedural generation, dynamic events
-7. **Mission System** - Objectives, progression, evaluation
-8. **UI System** - All interfaces (MVP pattern)
+5. **Building System** - Structures, placement
+6. **World System** - Procedural generation, events
+7. **Mission System** - Objectives, progression
+8. **UI System** - MVP pattern
 
-**⚠️ Critical:** Use custom physics, not Unity's Physics2D. Space requires inertia without friction.
-
-### Key Design Patterns
+### Design Patterns
 
 | Pattern | Usage |
 |---------|-------|
-| **Singleton** | GameManager, DroneManager, ResourceManager, UIManager |
-| **Factory** | DroneFactory, StructureFactory (creating complex objects) |
-| **State Machine** | DroneBehavior (AI), Structure states |
-| **Observer (EventBus)** | Inter-system communication, decoupling |
-| **Object Pool** | Particles, projectiles, frequently spawned objects |
-| **Strategy** | Pathfinding algorithms, different behaviors |
+| Singleton | GameManager, DroneManager, ResourceManager, UIManager |
+| Factory | DroneFactory, StructureFactory |
+| State Machine | DroneBehavior, Structure states |
+| Observer | EventBus for decoupling |
+| Object Pool | Particles, projectiles |
+| Strategy | Pathfinding algorithms |
 
-### Data-Driven Design
+---
 
-**All game content defined in ScriptableObjects:**
-- Drone modules → `DroneModuleData`
-- Behaviors → `BehaviorConfiguration`
-- Resources → `ResourceType`
-- Recipes → `ProductionRecipe`
-- Missions → `Mission`
-- Technologies → `Technology`
+## Code Patterns
 
-**Benefits:**
-- Designers can balance without code
-- Hot-reload in editor
-- Easy to test variations
-
-### Custom Space Physics
-
-**Why custom physics?**
-Unity's Physics2D assumes ground-based physics with drag/friction. Space requires:
-- Inertia-based movement (objects don't stop)
-- Impulse-based thrust
-- Gravitational influences
-- Predictable trajectories for AI
-
-**Key classes:**
-- `SpaceBody` - Rigidbody-like component
-- `PhysicsManager` - Fixed-timestep simulation
-- `GravityField` - Gravity sources (asteroids, planets)
-- `TrajectoryPredictor` - Path prediction for AI
-
-### Performance Targets
-
-- **60 FPS** with 100 active drones
-- **30 FPS** with 500 drones (acceptable)
-- **Build size** <50 MB (WebGL fast loading)
-
-**Optimization strategies:**
-- Spatial hashing for collision detection
-- Update frequency tiers (distant drones update less)
-- LOD (level of detail) for distant objects
-- Object pooling for particles/projectiles
-- Batch rendering via sprite atlases
-
-## Unity-Specific Notes
-
-### Input System
-Input actions defined in `Assets/Settings/InputSystem_Actions.inputactions`.
-- Camera movement (WASD)
-- Zoom (mouse wheel)
-- Selection (LMB, drag, Ctrl/Shift modifiers)
-- Pause (Space)
-- Groups (1-9, Ctrl+1-9)
-
-### Rendering Pipeline
-URP 2D renderer configuration:
-- Pipeline asset: `Assets/Settings/UniversalRP.asset`
-- 2D renderer: `Assets/Settings/Renderer2D.asset`
-- Ensure all materials/shaders are URP 2D compatible
-
-### WebGL Deployment
-Custom PWA template at `Assets/WebGLTemplates/PWACustom/`
-- Service Worker for offline support
-- Progressive Web App manifest
-- Optimized for browser constraints
-
-### Assembly Definitions
-
-Planned assembly structure:
-- **AsteroidFoundry.Core** - Core systems, managers
-- **AsteroidFoundry.Drone** - Drone-related code
-- **AsteroidFoundry.Physics** - Custom physics
-- **AsteroidFoundry.UI** - All UI code
-- **AsteroidFoundry.Common** - Shared utilities
-
-## Code Style
-
-The repository includes an `.editorconfig` at the root level that:
-- Sets C# analyzer diagnostic severity to none
-- Disables IDE0079 warnings
-- Maintains consistent code style across editors
-
-## Implementation Roadmap
-
-### Phase 1: Foundation (Weeks 1-2) - **NEXT**
-**Goal:** Core infrastructure
-
-- [ ] Create folder structure
-- [ ] Implement GameManager (singleton, lifecycle)
-- [ ] Implement TimeManager (pause, time scale)
-- [ ] Implement EventBus (publish/subscribe)
-- [ ] Basic UI framework setup
-- [ ] Camera controller (WASD movement, zoom)
-
-### Phase 2: Physics (Weeks 3-4)
-**Goal:** Custom space physics working
-
-- [ ] SpaceBody component (velocity, position, mass)
-- [ ] PhysicsManager (fixed timestep simulation)
-- [ ] Gravity system (GravityField component)
-- [ ] Basic collision detection
-- [ ] Trajectory prediction
-- [ ] Visual debug tools (draw trajectories)
-
-### Phase 3: Drones (Weeks 5-7)
-**Goal:** First playable drone
-
-- [ ] Drone entity (component-based)
-- [ ] Module system (base class + thruster, core, fuel)
-- [ ] DroneFactory (create drones from blueprints)
-- [ ] Manual control (click to select, thrust with keyboard)
-- [ ] First AI behavior (MiningBehavior state machine)
-- [ ] Fuel and power subsystems
-
-### Phase 4: Resources (Weeks 8-9)
-**Goal:** Complete production loop
-
-- [ ] ResourceManager
-- [ ] Inventory system
-- [ ] ResourceNode (minable asteroids)
-- [ ] Production recipes (ScriptableObjects)
-- [ ] First structures (Smelter, Storage)
-- [ ] Production chains working
-
-### Phase 5: World (Weeks 10-11)
-**Goal:** Dynamic game environment
-
-- [ ] Procedural asteroid generation
-- [ ] Zone system (Inner/Middle/Outer)
-- [ ] Basic dynamic events (solar flare)
-- [ ] Lighting/energy zones
-
-### Phase 6: UI (Weeks 12-13)
-**Goal:** Complete player interface
-
-- [ ] HUD (resources, drone count)
-- [ ] Drone Designer UI
-- [ ] Behavior configuration UI
-- [ ] Mini-map
-
-### Phase 7: Missions (Weeks 14-15)
-**Goal:** Tutorial and missions
-
-- [ ] Mission system
-- [ ] Objective tracking
-- [ ] First 3 tutorial missions
-- [ ] Star rating system
-
-### Phase 8: Polish (Week 16+)
-**Goal:** Release-ready
-
-- [ ] Particle effects
-- [ ] Sound and music
-- [ ] Balancing
-- [ ] Performance optimization
-- [ ] Testing
-
-## Development Guidelines
-
-### When Adding New Features
-
-1. **Check documentation first**
-   - Does GAME_DESIGN.md define this feature?
-   - Does ARCHITECTURE.md describe the system?
-
-2. **Follow the architecture**
-   - Use appropriate design patterns
-   - Maintain separation of concerns
-   - Use EventBus for cross-system communication
-
-3. **Data-driven approach**
-   - Create ScriptableObjects for configuration
-   - Avoid hardcoding values
-
-4. **Test early**
-   - Create simple test cases
-   - Verify physics behavior
-   - Check performance with many objects
-
-### Code Organization
-
-**Naming conventions:**
-- Classes: PascalCase (`DroneModule`, `PhysicsManager`)
-- Methods: PascalCase (`CalculateGravity()`)
-- Private fields: camelCase with underscore (`_currentVelocity`)
-- Public properties: PascalCase (`CurrentVelocity`)
-- Events: PascalCase with "On" or "Event" (`OnDroneSpawned`, `CollisionEvent`)
-
-**File organization:**
-- One class per file
-- File name matches class name
-- Group related classes in folders
-
-### WebGL Platform Considerations
-
-**Critical constraints:**
-- WebGL is **single-threaded** - avoid threading APIs
-- Limited memory - test with 100+ drones
-- No persistent storage - use browser LocalStorage/IndexedDB
-- Slower than native - aggressive optimization needed
-
-**Best practices:**
-- Use web-compatible formats (PNG, OGG)
-- Enable code stripping (already configured)
-- Test build size frequently (target <50 MB)
-- Profile in browser, not just editor
-
-### Git Workflow
-
-- **Main branch:** `main` - production-ready code
-- **Feature branches:** `feature/feature-name`
-- **Current branch:** `draft/relaxed-vibes`
-- **CI/CD:** GitHub Actions auto-deploy to GitHub Pages from `main`
-
-**Commit guidelines:**
-- Clear, descriptive messages
-- Small, focused commits
-- Test before committing
-
-## Common Patterns & Examples
-
-### Creating a ScriptableObject
+### EventBus Usage
 
 ```csharp
-[CreateAssetMenu(menuName = "Asteroid Foundry/Module Data")]
-public class DroneModuleData : ScriptableObject
-{
-    public string moduleName;
-    public ModuleType moduleType;
-    public int slotCount;
-    public float mass;
-    // ... other properties
-}
-```
-
-### Using EventBus
-
-```csharp
-// Subscribe to event
+// Subscribe
 EventBus.Subscribe<DroneSpawnedEvent>(OnDroneSpawned);
 
-// Publish event
-EventBus.Publish(new DroneSpawnedEvent {
-    drone = newDrone,
-    position = spawnPosition
-});
+// Publish
+EventBus.Publish(new DroneSpawnedEvent { drone = newDrone });
 
-// Unsubscribe (in OnDestroy)
+// Unsubscribe (in OnDestroy!)
 EventBus.Unsubscribe<DroneSpawnedEvent>(OnDroneSpawned);
 ```
 
 ### Singleton Pattern
 
 ```csharp
-public class GameManager : MonoBehaviour
+public class SomeManager : MonoBehaviour
 {
-    public static GameManager Instance { get; private set; }
+    public static SomeManager Instance { get; private set; }
 
     void Awake()
     {
@@ -434,42 +188,137 @@ public class GameManager : MonoBehaviour
 }
 ```
 
-### State Machine for Behaviors
+### ScriptableObject Data
+
+```csharp
+[CreateAssetMenu(menuName = "Asteroid Foundry/Module Data")]
+public class DroneModuleData : ScriptableObject
+{
+    [SerializeField] private string _moduleName;
+    [SerializeField] private ModuleType _moduleType;
+    [SerializeField] private int _slotCount;
+    [SerializeField] private float _mass;
+
+    public string ModuleName => _moduleName;
+    public ModuleType Type => _moduleType;
+    public int SlotCount => _slotCount;
+    public float Mass => _mass;
+}
+```
+
+### State Machine (Behavior)
 
 ```csharp
 public class MiningBehavior : DroneBehavior
 {
-    enum State { SearchingForAsteroid, FlyingToAsteroid, Mining, ReturningToBase, Unloading }
-    State currentState;
+    private enum State { Searching, Flying, Mining, Returning, Unloading }
+    private State _currentState;
 
     public override void UpdateBehavior(float deltaTime)
     {
-        switch (currentState)
+        switch (_currentState)
         {
-            case State.SearchingForAsteroid:
-                SearchForTarget();
-                break;
-            case State.FlyingToAsteroid:
-                NavigateToTarget();
-                break;
-            // ... other states
+            case State.Searching: SearchForAsteroid(); break;
+            case State.Flying: NavigateToTarget(); break;
+            case State.Mining: MineResources(deltaTime); break;
+            case State.Returning: ReturnToBase(); break;
+            case State.Unloading: UnloadCargo(); break;
         }
     }
 }
 ```
 
+---
+
+## Project Structure
+
+```
+Assets/
+├── Scripts/
+│   ├── Core/           - GameManager, TimeManager, EventBus
+│   ├── Drone/          - Drone entities, modules, behaviors
+│   ├── Physics/        - SpaceBody, PhysicsManager, GravityField
+│   ├── Resources/      - ResourceManager, Inventory
+│   ├── Buildings/      - Structures, placement
+│   ├── World/          - Procedural generation, events
+│   ├── UI/             - UIManager, HUD, Designer
+│   ├── Mission/        - Mission system
+│   ├── Progression/    - Tech tree
+│   ├── Input/          - CameraController, Selection
+│   ├── SaveSystem/     - Persistence
+│   └── Utilities/      - Object pooling, extensions
+│
+├── Data/               - ScriptableObjects
+│   ├── Modules/
+│   ├── Behaviors/
+│   ├── Resources/
+│   ├── Recipes/
+│   ├── Technologies/
+│   └── Missions/
+│
+├── Prefabs/
+├── Scenes/
+├── Settings/           - URP, Input System configs
+├── Materials/
+├── Sprites/
+└── Audio/
+```
+
+---
+
+## Build & Development
+
+### Local Build
+- File → Build Settings → WebGL → Build
+
+### CI/CD
+GitHub Actions (`.github/workflows/main.yml`):
+- Auto-build on push to `main`
+- Deploy to GitHub Pages
+- Library folder caching
+
+### Git Workflow
+- `main` - production
+- `feature/*` - features
+- Current: `draft/relaxed-vibes`
+
+---
+
+## Naming Conventions
+
+| Type | Convention | Example |
+|------|------------|---------|
+| Class | PascalCase | `DroneModule` |
+| Method | PascalCase | `CalculateGravity()` |
+| Private field | _camelCase | `_currentVelocity` |
+| Property | PascalCase | `CurrentVelocity` |
+| Event | PascalCase + Event | `DroneSpawnedEvent` |
+| Constant | UPPER_CASE | `MAX_DRONES` |
+
+---
+
 ## Troubleshooting
 
-### Physics Issues
-- **Drones not moving:** Check if PhysicsManager is updating SpaceBody components
-- **Weird trajectories:** Verify gravity calculations, check for NaN values
-- **Collisions not working:** Ensure SpatialHash is populated
+### Physics
+- **Drones not moving**: Check PhysicsManager updates SpaceBody
+- **Weird trajectories**: Verify gravity, check for NaN
+- **Collisions broken**: Ensure SpatialHash populated
 
-### Performance Problems
-- **Low FPS:** Profile with Unity Profiler, check DroneManager update loop
-- **Memory leaks:** Verify object pooling, check for event subscription leaks
-- **Build size too large:** Review texture compression, enable code stripping
+### Performance
+- **Low FPS**: Profile DroneManager update loop
+- **Memory leaks**: Check event subscriptions, object pooling
+- **Large build**: Check texture compression
 
-### UI Not Updating
-- **HUD frozen:** Check if UI is subscribed to correct events
-- **Values wrong:** Verify data source (model) is updating correctly
+### UI
+- **HUD not updating**: Verify event subscriptions
+- **Wrong values**: Check model data source
+
+---
+
+## Documentation
+
+Full documentation in `.claude/`:
+- **GAME_DESIGN.md** - Complete game design (~1300 lines)
+- **ARCHITECTURE.md** - Technical architecture (~1570 lines)
+
+Consult these before major architectural decisions.
