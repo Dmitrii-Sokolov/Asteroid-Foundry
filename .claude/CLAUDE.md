@@ -1,13 +1,13 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Quick Reference
 
 | Task | Location |
 |------|----------|
-| Game design details | `.claude/GAME_DESIGN.md` |
-| Technical architecture | `.claude/ARCHITECTURE.md` |
+| Game design details | `.claude/docs/GAME_DESIGN.md` |
+| Technical architecture | `.claude/docs/ARCHITECTURE.md` |
 | Create ScriptableObject | `Assets/Data/` + see patterns below |
 | Add drone module | `Assets/Scripts/Drone/Modules/` |
 | Add AI behavior | `Assets/Scripts/Drone/Behaviors/` |
@@ -45,75 +45,6 @@ This file provides guidance to Claude Code when working with this repository.
 2. Use `ScriptableObjects` for game data
 3. Use `[SerializeField]` instead of `public` for inspector fields
 4. Prefer `UniTask` over coroutines for async (when added)
-
----
-
-## Current Status
-
-**Phase:** 1 - Foundation **COMPLETE**
-**Next:** Phase 2 - Physics System
-
-### Existing Files
-
-```
-Assets/Scripts/
-├── Core/
-│   ├── GameManager.cs       ✓ Singleton, lifecycle, state
-│   ├── TimeManager.cs       ✓ Pause, time scale
-│   ├── EventBus.cs          ✓ Pub/sub communication
-│   └── Phase1TestHelper.cs  ✓ Integration testing
-├── Input/
-│   └── CameraController.cs  ✓ WASD movement, zoom
-└── UI/
-    ├── UIManager.cs         ✓ UI coordination
-    └── HUDController.cs     ✓ HUD display
-```
-
-### Phase 2 Tasks (Physics)
-
-- [ ] `SpaceBody` component (velocity, position, mass)
-- [ ] `PhysicsManager` (fixed timestep simulation)
-- [ ] `GravityField` component
-- [ ] Basic collision detection (`SpatialHash`)
-- [ ] `TrajectoryPredictor`
-- [ ] Debug visualization
-
----
-
-## Key Constants (from GAME_DESIGN.md)
-
-### Collision Speeds
-| Speed | Result |
-|-------|--------|
-| < 1 m/s | Bounce, minimal damage |
-| 1-5 m/s | Module damage, cargo loss |
-| > 5 m/s | Destruction |
-
-### Energy Zones
-| Zone | Distance | Solar Efficiency |
-|------|----------|------------------|
-| Inner | 0-500u | 100% |
-| Middle | 500-1500u | 50% |
-| Outer | 1500-3000u | 10% |
-
-### Drone Cores
-| Core | Slots | HP | Mass | Cost |
-|------|-------|-----|------|------|
-| Small | 4 | 50 | 100kg | 10 iron |
-| Medium | 8 | 150 | 250kg | 30 iron, 10 copper |
-| Large | 16 | 400 | 600kg | 50 iron, 30 titanium |
-
-### Thrusters
-| Type | Thrust | Fuel/s | Slots |
-|------|--------|--------|-------|
-| Ion | 10N | 0.1 | 1 |
-| Chemical | 50N | 1.0 | 2 |
-| Plasma | 100N | 0.5 | 3 |
-
-### Performance Targets
-- **60 FPS** with 100 drones
-- **30 FPS** with 500 drones (acceptable)
-- **Build size** < 50 MB
 
 ---
 
@@ -230,60 +161,6 @@ public class MiningBehavior : DroneBehavior
 
 ---
 
-## Project Structure
-
-```
-Assets/
-├── Scripts/
-│   ├── Core/           - GameManager, TimeManager, EventBus
-│   ├── Drone/          - Drone entities, modules, behaviors
-│   ├── Physics/        - SpaceBody, PhysicsManager, GravityField
-│   ├── Resources/      - ResourceManager, Inventory
-│   ├── Buildings/      - Structures, placement
-│   ├── World/          - Procedural generation, events
-│   ├── UI/             - UIManager, HUD, Designer
-│   ├── Mission/        - Mission system
-│   ├── Progression/    - Tech tree
-│   ├── Input/          - CameraController, Selection
-│   ├── SaveSystem/     - Persistence
-│   └── Utilities/      - Object pooling, extensions
-│
-├── Data/               - ScriptableObjects
-│   ├── Modules/
-│   ├── Behaviors/
-│   ├── Resources/
-│   ├── Recipes/
-│   ├── Technologies/
-│   └── Missions/
-│
-├── Prefabs/
-├── Scenes/
-├── Settings/           - URP, Input System configs
-├── Materials/
-├── Sprites/
-└── Audio/
-```
-
----
-
-## Build & Development
-
-### Local Build
-- File → Build Settings → WebGL → Build
-
-### CI/CD
-GitHub Actions (`.github/workflows/main.yml`):
-- Auto-build on push to `main`
-- Deploy to GitHub Pages
-- Library folder caching
-
-### Git Workflow
-- `main` - production
-- `feature/*` - features
-- Current: `draft/relaxed-vibes`
-
----
-
 ## Naming Conventions
 
 | Type | Convention | Example |
@@ -317,7 +194,7 @@ GitHub Actions (`.github/workflows/main.yml`):
 
 ## Documentation
 
-Full documentation in `.claude/`:
+Full documentation in `.claude/docs/`:
 - **GAME_DESIGN.md** - Complete game design (~1300 lines)
 - **ARCHITECTURE.md** - Technical architecture (~1570 lines)
 
